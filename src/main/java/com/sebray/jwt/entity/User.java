@@ -3,6 +3,7 @@ package com.sebray.jwt.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -37,6 +38,11 @@ public class User {
     @NotBlank
     @Size(max = 100)
     private String password;
+
+    @NotNull
+    private Boolean isEnable;
+
+    private String activationCode;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_role",

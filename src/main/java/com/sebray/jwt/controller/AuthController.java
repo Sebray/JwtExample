@@ -8,8 +8,10 @@ import com.sebray.jwt.service.UserDetailsImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,20 +20,26 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
-@RequestMapping("api/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
     private final JwtProvider jwtProvider;
 
     @PostMapping("/register")
-    public ResponseEntity<?> signUp(UserDto userDto) {
-        LoginDto loginData = authService.SignUp(userDto);
+    public ResponseEntity<LoginDto> signUp(UserDto userDto) {
+        LoginDto loginData = authService.signUp(userDto);//нужно подтвердить почту
+        return new ResponseEntity<>(loginData, HttpStatus.OK);
+    }
+
+    @PostMapping("/activate")
+    public ResponseEntity<LoginDto> activateUser(UserDto userDto) {
+        LoginDto loginData = authService.activateUser(userDto);
         final Map<String, String> cookies = authService.login(loginData);
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookies.get("access"))
                 .header(HttpHeaders.SET_COOKIE, cookies.get("refresh"))
-                .body("User registered successfully!");
+                .body(loginData);
     }
 
     @PostMapping("/login")

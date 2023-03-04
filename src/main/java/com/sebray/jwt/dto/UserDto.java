@@ -17,6 +17,7 @@ public class UserDto {
     private String email;
 
     private String role;
+    private String activationCode;
 
     @NotBlank
     @Size(min = 6, max = 40)

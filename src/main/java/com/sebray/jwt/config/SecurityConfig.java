@@ -20,7 +20,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
     @Autowired
     private UserService userDetailsService;
@@ -58,13 +57,15 @@ public class SecurityConfig {
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeHttpRequests(auth ->
-                        auth.anyRequest().permitAll()
-                        .and()
+                        auth
+                                .requestMatchers("/api/test/admin").hasRole("ADMIN")
+                                .requestMatchers( "/api/test/user").hasRole("USER")
+                                .requestMatchers("/api/test/all").hasAnyRole("ADMIN", "USER")
+                                .requestMatchers("/api/auth/**").permitAll()
+                                .and()
                         .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
                 )
                 .authenticationProvider(authenticationProvider())
-
-
                 .build();
     }
 }

@@ -8,7 +8,6 @@ import com.sebray.jwt.entity.User;
 import com.sebray.jwt.exception.AuthException;
 import com.sebray.jwt.exception.ResourceAlreadyExistsException;
 import com.sebray.jwt.exception.ResourceNotFoundException;
-import com.sebray.jwt.mapper.RoleMapper;
 import com.sebray.jwt.repository.RefreshTokenRepository;
 import com.sebray.jwt.repository.RoleRepository;
 import com.sebray.jwt.repository.UserRepository;
@@ -23,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -32,24 +32,41 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
-    private final RoleMapper roleMapper;
 
-    public LoginDto SignUp(UserDto userDto){
+    public LoginDto signUp(UserDto userDto){
         if (userRepository.existsByUsername(userDto.getUsername()))
-            throw new ResourceAlreadyExistsException("The user exists");
+            throw new ResourceAlreadyExistsException("The username exists");
+
+        if (userRepository.existsByEmail(userDto.getEmail()))
+            throw new ResourceAlreadyExistsException("The email exists");
 
         Set<Role> roles = new HashSet<>();
-        roles.add(roleRepository.findByName(roleMapper.toERole(userDto.getRole()))
+        roles.add(roleRepository.findByName(userDto.getRole())
                 .orElseThrow(() -> new ResourceNotFoundException("Role does not exist")));
 
         User user = new User(null,
                 userDto.getUsername(),
                 userDto.getEmail(),
                 passwordEncoder.encode(userDto.getPassword()),
+                false,
+                UUID.randomUUID().toString(),
                 roles,
                 null);
         userRepository.save(user);
         return new LoginDto(userDto.getUsername(), userDto.getPassword());
+    }
+
+    public LoginDto activateUser(UserDto userDto){
+        User user = userRepository.findByUsername(userDto.getUsername())
+                .orElseThrow(()-> new ResourceNotFoundException("The user doesn't exist"));
+//        if (!user.getEmail().equals(userDto.getEmail()))
+//            throw new несоответствие значений
+
+//        if(!user.getActivationCode().equals(userDto.getActivationCode()))
+//
+        user.setIsEnable(true);
+        userRepository.save(user);
+        return new LoginDto(user.getUsername(), userDto.getPassword());
     }
 
     @Transactional
