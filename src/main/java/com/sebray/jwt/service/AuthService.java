@@ -6,6 +6,7 @@ import com.sebray.jwt.entity.RefreshToken;
 import com.sebray.jwt.entity.Role;
 import com.sebray.jwt.entity.User;
 import com.sebray.jwt.exception.AuthException;
+import com.sebray.jwt.exception.InvalidArgumentException;
 import com.sebray.jwt.exception.ResourceAlreadyExistsException;
 import com.sebray.jwt.exception.ResourceNotFoundException;
 import com.sebray.jwt.repository.RefreshTokenRepository;
@@ -59,11 +60,12 @@ public class AuthService {
     public LoginDto activateUser(UserDto userDto){
         User user = userRepository.findByUsername(userDto.getUsername())
                 .orElseThrow(()-> new ResourceNotFoundException("The user doesn't exist"));
-//        if (!user.getEmail().equals(userDto.getEmail()))
-//            throw new несоответствие значений
+        if (!user.getEmail().equals(userDto.getEmail()))
+            throw new InvalidArgumentException("The email doesn't exist");
 
-//        if(!user.getActivationCode().equals(userDto.getActivationCode()))
-//
+        if(!user.getActivationCode().equals(userDto.getActivationCode()))
+            throw new InvalidArgumentException("The activation code doesn't exist");
+
         user.setIsEnable(true);
         userRepository.save(user);
         return new LoginDto(user.getUsername(), userDto.getPassword());

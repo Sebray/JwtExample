@@ -1,10 +1,7 @@
 package com.sebray.jwt.handler;
 
 import com.sebray.jwt.dto.ErrorDto;
-import com.sebray.jwt.exception.AuthException;
-import com.sebray.jwt.exception.ResourceAlreadyExistsException;
-import com.sebray.jwt.exception.ResourceNotFoundException;
-import com.sebray.jwt.exception.TokenRefreshException;
+import com.sebray.jwt.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -44,5 +41,13 @@ public class GlobalControllerExceptionHandler {
                 new ErrorDto(ex.getMessage(),
                         Calendar.getInstance().getTime()),
                 HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(value = InvalidArgumentException.class)
+    public ResponseEntity<ErrorDto> handleInvalidArgumentException(InvalidArgumentException ex) {
+        return new ResponseEntity<>(
+                new ErrorDto(ex.getMessage(),
+                        Calendar.getInstance().getTime()),
+                HttpStatus.UNPROCESSABLE_ENTITY);
     }
 }
