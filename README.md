@@ -1,3 +1,4 @@
-Авторизация при помощи JWT
-Создаются access и refresh токены и помещаются в кукис. Refresh токен хранится в БД, нужен для получения обновления токенов.
-У пользователя есть роли. Они помогают определить, имеет ли пользователь доступ к запросу.
+## Authorization with JWT
+Creates access and refresh tokens and places them in cookies.
+Refresh token is stored in the database, needed to get token updates.
+Users have roles. They help to determine if the user has access to the request.
