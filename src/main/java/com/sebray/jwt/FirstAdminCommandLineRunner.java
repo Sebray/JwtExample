@@ -2,6 +2,7 @@ package com.sebray.jwt;
 
 import com.sebray.jwt.entity.Role;
 import com.sebray.jwt.entity.User;
+import com.sebray.jwt.exception.ResourceNotFoundException;
 import com.sebray.jwt.repository.RoleRepository;
 import com.sebray.jwt.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +22,11 @@ public class FirstAdminCommandLineRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        if(!userRepository.existsByEmail("admin@yandex.ru")) {
+        if (!userRepository.existsByEmail("admin@yandex.ru")) {
             Set<Role> roles = new HashSet<>();
-            roles.add(roleRepository.findByName("ROLE_ADMIN").get());
+            Role role = roleRepository.findByName("ROLE_ADMIN")
+                    .orElseThrow(() -> new ResourceNotFoundException("ROLE_ADMIN does not exist"));
+            roles.add(role);
             userRepository.save(new User(
                     null,
                     "admin",
